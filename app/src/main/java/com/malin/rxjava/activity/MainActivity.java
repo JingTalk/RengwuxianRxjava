@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         initializeLogAndDeviceInfo();
         initView();
-        testFuncation(6);//RxJava基础概念的练习
+        testFuncation(25);//RxJava基础概念的练习
     }
 
 
@@ -473,6 +473,17 @@ public class MainActivity extends AppCompatActivity {
      * 显示图片
      * 后台线程取数据，主线程显示
      * 加载图片将会发生在 IO 线程，而设置图片则被设定在了主线程。这就意味着，即使加载图片耗费了几十甚至几百毫秒的时间，也不会造成丝毫界面的卡顿。
+     *
+     * Schedulers.immediate(): 直接在当前线程运行，相当于不指定线程。这是默认的 Scheduler。
+     * Schedulers.newThread(): 总是启用新线程，并在新线程执行操作。
+     * Schedulers.io(): I/O 操作（读写文件、读写数据库、网络信息交互等）所使用的 Scheduler。行为模式和 newThread() 差不多，区别在于 io() 的内部实现是是用一个无数量上限的线程池，可以重用空闲的线程，因此多数情况下 io() 比 newThread() 更有效率。不要把计算工作放在 io() 中，可以避免创建不必要的线程。
+     * Schedulers.computation(): 计算所使用的 Scheduler。这个计算指的是 CPU 密集型计算，即不会被 I/O 等操作限制性能的操作，例如图形的计算。这个 Scheduler 使用的固定的线程池，大小为 CPU 核数。不要把 I/O 操作放在 computation() 中，否则 I/O 操作的等待时间会浪费 CPU。
+     * 另外， Android 还有一个专用的 AndroidSchedulers.mainThread()，它指定的操作将在 Android 主线程运行。
+     *
+     *
+     * 有了这几个 Scheduler ，就可以使用 subscribeOn() 和 observeOn() 两个方法来对线程进行控制了
+     * subscribeOn(): 指定 subscribe() 所发生的线程，即 Observable.OnSubscribe 被激活时所处的线程。或者叫做事件产生的线程
+     * observeOn(): 指定 Subscriber 所运行在的线程。或者叫做事件消费的线程
      */
     private void method6() {
 
@@ -487,12 +498,14 @@ public class MainActivity extends AppCompatActivity {
             }
         }).subscribeOn(Schedulers.io())//事件产生的线程。指定 subscribe() 发生在 IO 线程
                 // doOnSubscribe() 之后有 subscribeOn() 的话，它将执行在离它最近的 subscribeOn() 所指定的线程。这里将执行在主线程中
+                // 要在指定的线程来做准备工作，可以使用 doOnSubscribe() 方法
                 .doOnSubscribe(new Action0() {
                     @Override
                     public void call() {
                         if (mProgressBar != null) {
                             mProgressBar.setVisibility(View.VISIBLE);//显示一个等待的ProgressBar--需要在主线程中执行
                         }
+                        logd("mProgressBar visible");
                     }
                 })
                 .observeOn(AndroidSchedulers.mainThread())//指定 Subscriber 所运行在的线程。或者叫做事件消费的线程
@@ -527,11 +540,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //---------------------------------------7: 变换 map()-------------------------------------------------------------
+
+    /**
+     * map() 方法将参数中的 String 对象转换成一个 Bitmap 对象后返回，而在经过 map() 方法后，
+     * 事件的参数类型也由 String 转为了 Bitmap。这种直接变换对象并返回的，是最常见的也最容易理解的变换。
+     * 不过 RxJava 的变换远不止这样，它不仅可以针对事件对象，还可以针对整个事件队列，这使得 RxJava 变得非常灵活
+     *
+     * map(): 事件对象的直接变换
+     * flatMap(): 这是一个很有用但非常难理解的变换，因此我决定花多些篇幅来介绍它。 首先假设这么一种需求：假设有一个数据结构『学生』，现在需要打印出一组学生的名字
+     * throttleFirst(): 在每次事件触发后的一定时间间隔内丢弃新的事件。常用作去抖动过滤
+     */
     private void method7() {
         final int drawableRes = R.mipmap.malin;
 
         //1:被观察者
-        Observable.just(drawableRes)//输入类型 int
+        Observable.just(drawableRes)//输入类型 int - 将一个Integer对象转换成一个 Drawable对象返回
                 .map(new Func1<Integer, Drawable>() {
 
                     @Override
@@ -548,6 +571,7 @@ public class MainActivity extends AppCompatActivity {
                         if (mProgressBar != null) {
                             mProgressBar.setVisibility(View.VISIBLE);//显示一个等待的ProgressBar--需要在主线程中执行
                         }
+                        logd("mProgressBar visible");
                     }
                 })
                 .observeOn(AndroidSchedulers.mainThread())//指定 Subscriber 所运行在的线程。或者叫做事件消费的线程
@@ -758,6 +782,18 @@ public class MainActivity extends AppCompatActivity {
      * 嵌套循环的RxJava解决方案
      * {@link #method13()}
      * Student -> ArrayList<Course> -> Observable<Course> ->
+     *
+     * map() 是一对一的转化，而我现在的要求是一对多的转化
+     *
+     *  flatMap() 和 map() 有一个相同点：它也是把传入的参数转化之后返回另一个对象。
+     *  但需要注意，和 map() 不同的是， flatMap() 中返回的是个 Observable 对象，
+     *  并且这个 Observable 对象并不是被直接发送到了 Subscriber 的回调方法中。
+     *  flatMap() 的原理是这样的：
+     *  1. 使用传入的事件对象创建一个 Observable 对象；
+     *  2. 并不发送这个 Observable, 而是将它激活，于是它开始发送事件；
+     *  3. 每一个创建出来的 Observable 发送的事件，都被汇入同一个 Observable ，而这个 Observable 负责将这些事件统一交给 Subscriber 的回调方法。
+     *  这三个步骤，把事件拆成了两级，通过一组新创建的 Observable 将初始的对象『铺平』之后通过统一路径分发了下去。
+     *  而这个『铺平』就是 flatMap() 所谓的 flat
      */
     private void method14() {
 
@@ -827,6 +863,8 @@ public class MainActivity extends AppCompatActivity {
      * throttleFirst() ，用于去抖动，也就是消除手抖导致的快速连环点击：
      */
     private void method16() {
+        mImageView.setVisibility(View.VISIBLE);
+        mImageView.setBackgroundResource(R.mipmap.malin);
         RxView.clicks(mImageView)
                 .throttleFirst(500, TimeUnit.MILLISECONDS)//500ms,第一次点击后,500ms内点击无效,500ms后点击才会响应
                 .subscribeOn(AndroidSchedulers.mainThread())
@@ -843,6 +881,8 @@ public class MainActivity extends AppCompatActivity {
      * RxBinding
      */
     private void method17() {
+        mImageView.setVisibility(View.VISIBLE);
+        mImageView.setBackgroundResource(R.mipmap.malin);
         RxView.longClicks(mImageView)
                 .throttleFirst(500, TimeUnit.MILLISECONDS)
                 .subscribe(new Action1<Void>() {
@@ -886,7 +926,7 @@ public class MainActivity extends AppCompatActivity {
      */
     //操作符号 Range操作符根据出入的初始值n和数目m发射一系列大于等于n的m个值
     //例如:实现:输出1,2,3,4,5
-    // 其使用也非常方便，仅仅制定初始值和数目就可以了，不用自己去实现对Subscriber的调用
+    //其使用也非常方便，仅仅制定初始值和数目就可以了，不用自己去实现对Subscriber的调用
     private void method19() {
         Observable.range(1, 5)
                 .subscribeOn(Schedulers.io())
@@ -1106,6 +1146,14 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void method24() {
+        miZhiSuoJinAndNestedLoopAndCallbackHell();
+    }
+
+    private void method25() {
+        rxJavaSolveMiZhiSuoJinAndNestedLoopAndCallbackHell();
+    }
+
     public static String timeLongToString(long data) {
         Date date = new Date(data);
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
@@ -1249,6 +1297,16 @@ public class MainActivity extends AppCompatActivity {
                 method23();
                 break;
             }
+
+            case 24: {
+                method24();
+                break;
+            }
+
+            case 25: {
+                method25();
+                break;
+            }
             default: {
 
                 break;
@@ -1383,6 +1441,7 @@ public class MainActivity extends AppCompatActivity {
     //4:获取某个路径下图片的bitmap
     //5:将Bitmap绘制到画布上
     //6:循环结束后更新UI,给ImageView设置最后绘制完成后的Bitmap,隐藏ProgressBar
+
     private void miZhiSuoJinAndNestedLoopAndCallbackHell() {
         new Thread(new Runnable() {
             @Override
@@ -1497,7 +1556,6 @@ public class MainActivity extends AppCompatActivity {
 
     //-----------------------------------RxJava的实现--链式调用--十分简洁 -----------------------------------------------------------
 
-
     private void rxJavaSolveMiZhiSuoJinAndNestedLoopAndCallbackHell() {
         //1:被观察者:
 
@@ -1569,6 +1627,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void logd(String s) {
-        Log.d(TAG, s);
+        Log.d(TAG, "jingtalk- " + s);
     }
 }
