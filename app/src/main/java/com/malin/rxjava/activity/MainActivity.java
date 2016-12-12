@@ -116,9 +116,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         initializeLogAndDeviceInfo();
         initView();
-        testFuncation(0);//RxJava基础概念的练习
+        testFuncation(6);//RxJava基础概念的练习
     }
-
 
 
     /**
@@ -164,7 +163,8 @@ public class MainActivity extends AppCompatActivity {
                 subscriber.onNext("!");
                 subscriber.onCompleted();
                 subscriber.onError(new Throwable());
-                Logger.d("被观察者-observable->call()->onCompleted()之后是否还有输出");
+//                logd("被观察者-observable->call()->onCompleted()之后是否还有输出");
+                logd("被观察者-observable->call()->onCompleted()之后是否还有输出");
             }
         });
 
@@ -179,17 +179,20 @@ public class MainActivity extends AppCompatActivity {
         Observer<String> observer = new Observer<String>() {
             @Override
             public void onCompleted() {
-                Logger.d("观察者-observer:onCompleted()");
+//                logd("观察者-observer:onCompleted()");
+                logd("观察者-observer:onCompleted()");
             }
 
             @Override
             public void onError(Throwable e) {
-                Logger.d("观察者-observer:onError" + e.getMessage());
+//                logd("观察者-observer:onError" + e.getMessage());
+                logd("观察者-observer:onError" + e.getMessage());
             }
 
             @Override
             public void onNext(String s) {
-                Logger.d("观察者-observer:onNext():" + s);
+//                logd("观察者-observer:onNext():" + s);
+                logd("观察者-observer:onNext():" + s);
                 // getException();//故意让程序出现异常,用于测试onError()方法的执行....
             }
         };
@@ -233,17 +236,17 @@ public class MainActivity extends AppCompatActivity {
         Observer<String> observer = new Observer<String>() {
             @Override
             public void onCompleted() {
-                Logger.d("观察者-observer:onCompleted()");
+                logd("观察者-observer:onCompleted()");
             }
 
             @Override
             public void onError(Throwable e) {
-                Logger.d("观察者-observer:onError()");
+                logd("观察者-observer:onError()");
             }
 
             @Override
             public void onNext(String s) {
-                Logger.d("观察者-observer:onNext():" + s);
+                logd("观察者-observer:onNext():" + s);
                 // getException();//故意让程序出现异常,用于测试onError()方法的执行....
             }
         };
@@ -282,19 +285,19 @@ public class MainActivity extends AppCompatActivity {
         Observer observer = new Observer() {
             @Override
             public void onCompleted() {
-                Logger.d("观察者-observer:onCompleted()");
+                logd("观察者-observer:onCompleted()");
             }
 
             @Override
             public void onError(Throwable e) {
-                Logger.d("观察者-observer:onError()");
+                logd("观察者-observer:onError()");
             }
 
             @Override
             public void onNext(Object o) {
                 String str = (String) o;
-                Logger.d("观察者-observer:onNext():" + str);
-               // getException();//故意让程序出现异常,用于测试onError()方法的执行....
+                logd("观察者-observer:onNext():" + str);
+                // getException();//故意让程序出现异常,用于测试onError()方法的执行....
             }
         };
 
@@ -322,7 +325,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void call(Object o) {
                 String str = (String) o;
-                Logger.d("观察者:call(Object o):" + str);
+//                logd("观察者:call(Object o):" + str);
+                logd("观察者:call(Object o):" + str);
             }
         };
 
@@ -348,7 +352,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void call(Object o) {
                 String str = (String) o;
-                Logger.d("观察者:onNextAction:call(Object o):o:" + str);
+//                logd("观察者:onNextAction:call(Object o):o:" + str);
+                logd("观察者:onNextAction:call(Object o):o:" + str);
             }
         };
 
@@ -356,7 +361,8 @@ public class MainActivity extends AppCompatActivity {
         Action1<Throwable> onErrorAction = new Action1<Throwable>() {
             @Override
             public void call(Throwable throwable) {
-                Logger.d("观察者:onErrorAction:call(Throwable throwable):" + throwable.getMessage());
+//                logd("观察者:onErrorAction:call(Throwable throwable):" + throwable.getMessage());
+                logd("观察者:onErrorAction:call(Throwable throwable):" + throwable.getMessage());
             }
         };
 
@@ -383,7 +389,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void call(Object o) {
                 String str = (String) o;
-                Logger.d("观察者:onNextAction:call():s:" + str);
+//                logd("观察者:onNextAction:call():s:" + str);
+                logd("观察者:onNextAction:call():s:" + str);
             }
         };
 
@@ -391,7 +398,8 @@ public class MainActivity extends AppCompatActivity {
         Action1<Throwable> onErrorAction = new Action1<Throwable>() {
             @Override
             public void call(Throwable throwable) {
-                Logger.d("观察者:onErrorAction:call(Throwable throwable):" + throwable.getMessage());
+//                logd("观察者:onErrorAction:call(Throwable throwable):" + throwable.getMessage());
+                logd("观察者:onErrorAction:call(Throwable throwable):" + throwable.getMessage());
             }
         };
 
@@ -399,7 +407,8 @@ public class MainActivity extends AppCompatActivity {
         Action0 onCompletedAction = new Action0() {
             @Override
             public void call() {
-                Logger.d("观察者:onCompletedAction:call()");
+//                logd("观察者:onCompletedAction:call()");
+                logd("观察者:onCompletedAction:call()");
             }
         };
 
@@ -471,13 +480,12 @@ public class MainActivity extends AppCompatActivity {
         Observable.create(new Observable.OnSubscribe<Drawable>() { //1:被观察者
             @Override
             public void call(Subscriber<? super Drawable> subscriber) {
-                Logger.d("被观察者");
+                logd("被观察者");
                 Drawable drawable = getResources().getDrawable(drawableRes);
                 subscriber.onNext(drawable);
                 subscriber.onCompleted();
             }
-        })
-                .subscribeOn(Schedulers.io())//事件产生的线程。指定 subscribe() 发生在 IO 线程
+        }).subscribeOn(Schedulers.io())//事件产生的线程。指定 subscribe() 发生在 IO 线程
                 // doOnSubscribe() 之后有 subscribeOn() 的话，它将执行在离它最近的 subscribeOn() 所指定的线程。这里将执行在主线程中
                 .doOnSubscribe(new Action0() {
                     @Override
@@ -491,19 +499,19 @@ public class MainActivity extends AppCompatActivity {
                 .subscribe(new Subscriber<Drawable>() {   //3:订阅 //2:观察者
                     @Override
                     public void onCompleted() {
-                        if (mProgressBar!=null){
+                        if (mProgressBar != null) {
                             mProgressBar.setVisibility(View.GONE);
                         }
-                        Logger.d("观察者 onCompleted()");
+                        logd("观察者 onCompleted()");
                         Toast.makeText(MainActivity.this, "观察者 onCompleted()", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        if (mProgressBar!=null){
+                        if (mProgressBar != null) {
                             mProgressBar.setVisibility(View.GONE);
                         }
-                        Logger.d("观察者 onError()");
+                        logd("观察者 onError()");
                         Toast.makeText(MainActivity.this, "观察者 onError() " + e.getMessage(), Toast.LENGTH_SHORT).show();
 
                     }
@@ -511,7 +519,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onNext(Drawable drawable) {
                         Toast.makeText(MainActivity.this, "观察者 onNext()", Toast.LENGTH_SHORT).show();
-                        Logger.d("观察者 onNext()");
+                        logd("观察者 onNext()");
                         mImageView.setImageDrawable(drawable);
                     }
                 });
@@ -528,7 +536,7 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public Drawable call(Integer integer) {// 参数类型 String
-                        Logger.d("integer:" + integer);
+                        logd("integer:" + integer);
                         return getResources().getDrawable(integer);
                     }
                 })
@@ -549,7 +557,7 @@ public class MainActivity extends AppCompatActivity {
                         if (mProgressBar != null) {
                             mProgressBar.setVisibility(View.GONE);
                         }
-                        Logger.d("观察者:onCompleted()");
+                        logd("观察者:onCompleted()");
                     }
 
                     @Override
@@ -558,13 +566,13 @@ public class MainActivity extends AppCompatActivity {
                             mProgressBar.setVisibility(View.GONE);
                         }
                         Toast.makeText(MainActivity.this, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        Logger.d("观察者:onError(Throwable e):" + e.getMessage());
+                        logd("观察者:onError(Throwable e):" + e.getMessage());
                     }
 
                     @Override
                     public void onNext(Drawable drawable) {
                         mImageView.setImageDrawable(drawable);
-                        Logger.d("观察者:onNext(Drawable drawable):" + drawable.toString());
+                        logd("观察者:onNext(Drawable drawable):" + drawable.toString());
                     }
                 });
     }
@@ -576,10 +584,10 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<Student> students = DataFactory.getData();
         int size = students.size();
         for (int i = 0; i < size; i++) {
-            Logger.d("姓名:" + students.get(i).name);
+            logd("姓名:" + students.get(i).name);
             int sizeCourses = students.get(i).courses.size();
             for (int j = 0; j < sizeCourses; j++) {
-                Logger.d("课程:" + students.get(i).courses.get(j).name);
+                logd("课程:" + students.get(i).courses.get(j).name);
             }
         }
     }
@@ -591,21 +599,21 @@ public class MainActivity extends AppCompatActivity {
      * {@link #method8()}
      */
     private void method9() {
-       //just(T...): 将传入的参数依次发送出来,实现遍历的目的
+        //just(T...): 将传入的参数依次发送出来,实现遍历的目的
         Observable.from(DataFactory.getData())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Action1<Student>() {
                     @Override
                     public void call(Student student) {
-                        Logger.d("观察者:" + student.name);
+                        logd("观察者:" + student.name);
                     }
                 });
     }
 
 
     /**
-     *  需要:输出学生的姓名:将每个学生的(姓名)依次发射出去
+     * 需要:输出学生的姓名:将每个学生的(姓名)依次发射出去
      * RxJava解决方案
      * {@link #method9()}
      */
@@ -636,17 +644,17 @@ public class MainActivity extends AppCompatActivity {
                 .subscribe(new Subscriber<String>() {
                     @Override
                     public void onCompleted() {
-                        Logger.d("观察者:onCompleted()");
+                        logd("观察者:onCompleted()");
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        Logger.d("观察者:onError(Throwable e)  " + e.getMessage());
+                        logd("观察者:onError(Throwable e)  " + e.getMessage());
                     }
 
                     @Override
                     public void onNext(String s) {
-                        Logger.d("观察者:onNext(String s) " + s);
+                        logd("观察者:onNext(String s) " + s);
                     }
                 });
 
@@ -671,7 +679,7 @@ public class MainActivity extends AppCompatActivity {
                 .subscribe(new Action1<String>() {
                     @Override
                     public void call(String s) {
-                        Logger.d("观察者:" + s);
+                        logd("观察者:" + s);
                     }
                 });
 
@@ -697,19 +705,19 @@ public class MainActivity extends AppCompatActivity {
                 .subscribe(new Subscriber<Student>() {
                     @Override
                     public void onCompleted() {
-                        Logger.d("观察者:onCompleted()");
+                        logd("观察者:onCompleted()");
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        Logger.d("观察者:onError(Throwable e)" + e.getMessage());
+                        logd("观察者:onError(Throwable e)" + e.getMessage());
                     }
 
                     @Override
                     public void onNext(Student student) {
                         ArrayList<Course> courses = student.courses;
                         for (Course course : courses) {
-                            Logger.d("观察者:" +course.name);
+                            logd("观察者:" + course.name);
                         }
                     }
                 });
@@ -737,13 +745,14 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void call(ArrayList<Course> courses) {
                         for (int i = 0; i < courses.size(); i++) {
-                            Logger.d("观察者:" + courses.get(i).name);
+                            logd("观察者:" + courses.get(i).name);
                         }
                     }
                 });
     }
 
     //---------------------------------------10: flatMap()的使用-------------------------------------------------------------
+
     /**
      * 需要:输出每一个学生选修的课程,对method13的简化
      * 嵌套循环的RxJava解决方案
@@ -776,20 +785,19 @@ public class MainActivity extends AppCompatActivity {
                 .subscribe(new Action1<Course>() {
                     @Override
                     public void call(Course course) {
-                        Logger.d("观察者:" + course.name);
+                        logd("观察者:" + course.name);
                     }
                 });
     }
 
 
-     //---------------------------------------10: RxBinding的引入-------------------------------------------------------------
+    //---------------------------------------10: RxBinding的引入-------------------------------------------------------------
 
 
     /**
      * 需要防止快速连续点击,短时间内连续点击.
-     *
      */
-    private void method15(){
+    private void method15() {
 
 
         mImageView.setOnClickListener(new View.OnClickListener() {
@@ -809,8 +817,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-
     }
+
     /**
      * RxBinding
      * RxBinding 是 Jake Wharton 的一个开源库，它提供了一套在 Android 平台上的基于 RxJava 的 Binding API。
@@ -848,7 +856,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * EditText,每隔500ms,去响应变化
      */
-    private void method18(){
+    private void method18() {
         mSearchEditText.setVisibility(View.VISIBLE);
         RxTextView.textChangeEvents(mSearchEditText)
                 .debounce(500, TimeUnit.MILLISECONDS)
@@ -865,9 +873,9 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onNext(TextViewTextChangeEvent textViewTextChangeEvent) {
                         String changedMessage = textViewTextChangeEvent.text().toString();
-                        Logger.d(TAG, changedMessage);
-                        if (!TextUtils.isEmpty(changedMessage)){
-                            ToastUtil.getInstance().showToast(MainActivity.this,changedMessage);
+                        logd(changedMessage);
+                        if (!TextUtils.isEmpty(changedMessage)) {
+                            ToastUtil.getInstance().showToast(MainActivity.this, changedMessage);
                         }
                     }
                 });
@@ -879,7 +887,6 @@ public class MainActivity extends AppCompatActivity {
     //操作符号 Range操作符根据出入的初始值n和数目m发射一系列大于等于n的m个值
     //例如:实现:输出1,2,3,4,5
     // 其使用也非常方便，仅仅制定初始值和数目就可以了，不用自己去实现对Subscriber的调用
-
     private void method19() {
         Observable.range(1, 5)
                 .subscribeOn(Schedulers.io())
@@ -887,7 +894,7 @@ public class MainActivity extends AppCompatActivity {
                 .subscribe(new Action1<Integer>() {
                     @Override
                     public void call(Integer integer) {
-                        Logger.d(integer.toString() + "");
+                        logd(integer.toString() + "");
                     }
                 });
     }
@@ -914,20 +921,20 @@ public class MainActivity extends AppCompatActivity {
                     ResponseBody responseBody = response.errorBody();
                     if (responseBody != null) {
                         try {
-                            Logger.d("responseBody = " + responseBody.string());
+                            logd("responseBody = " + responseBody.string());
                             mResultTextView.setText("responseBody = " + responseBody.string());
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                     } else {
-                        Logger.d("responseBody = null");
+                        logd("responseBody = null");
                         mResultTextView.setText("responseBody = null");
                     }
                 } else {
                     //200
                     String message = "Github Name :" + user.name + "\nWebsite :" + user.blog + "\nCompany Name :" + user.company;
                     ToastUtil.getInstance().showToast(MainActivity.this, message);
-                    Logger.d(message);
+                    logd(message);
                     mResultTextView.setText(message);
                 }
                 mProgressBar.setVisibility(View.GONE);
@@ -935,7 +942,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<User> call, Throwable t) {
-                Logger.d("t = " + t.getMessage());
+                logd("t = " + t.getMessage());
                 mProgressBar.setVisibility(View.GONE);
             }
         });
@@ -944,7 +951,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * 使用Retrofit网络库,同时使用RxJava 获取androidmalin的GitHub个人信息
      */
-    private void method22(){
+    private void method22() {
         //TODO:1:被观察者,数据源
         //TODO:2:观察者
         //TODO:3:订阅,被观察者 被 观察者订阅
@@ -965,27 +972,26 @@ public class MainActivity extends AppCompatActivity {
                 .subscribe(new Subscriber<User>() {
                     @Override
                     public void onCompleted() {
-                        Logger.d("onCompleted()");
+                        logd("onCompleted()");
                         mProgressBar.setVisibility(View.INVISIBLE);
                         Toast.makeText(MainActivity.this, "onCompleted", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        Logger.d("onError()=>" + e.getMessage());
+                        logd("onError()=>" + e.getMessage());
                     }
 
                     @Override
                     public void onNext(User user) {
-                        Logger.d( "onNext()");
+                        logd("onNext()");
                         String message = "Github Name :" + user.name + "\nWebsite :" + user.blog + "\nCompany Name :" + user.company;
                         Toast.makeText(MainActivity.this, "onNext", Toast.LENGTH_SHORT).show();
-                        Logger.d(message);
+                        logd(message);
                         mResultTextView.setText(user.toString());
                     }
                 });
     }
-
 
 
     private ArrayAdapter<String> mAdapter;
@@ -1018,7 +1024,7 @@ public class MainActivity extends AppCompatActivity {
                 .subscribe(new Observer<List<Contributor>>() {
                     @Override
                     public void onCompleted() {
-                        Logger.d("Retrofit call 1 completed");
+                        logd("Retrofit call 1 completed");
                         mProgressBar.setVisibility(View.GONE);
                         mResultListView.setVisibility(View.VISIBLE);
                         ToastUtil.getInstance().showToast(MainActivity.this, "onCompleted");
@@ -1040,7 +1046,7 @@ public class MainActivity extends AppCompatActivity {
                                     c.contributions,
                                     "retrofit"));
 
-                            Logger.d(String.format("%s has made %d contributions to %s",
+                            logd(String.format("%s has made %d contributions to %s",
                                     c.login,
                                     c.contributions,
                                     "retrofit"));
@@ -1048,7 +1054,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }));
     }
-
 
 
     private static final int COUNT = 10;
@@ -1219,28 +1224,28 @@ public class MainActivity extends AppCompatActivity {
             }
 
 
-            case 19:{
+            case 19: {
                 method19();
                 break;
             }
 
-            case 20:{
+            case 20: {
                 method20();
                 break;
             }
 
-            case 21:{
+            case 21: {
                 method21();
                 break;
             }
 
 
-            case 22:{
+            case 22: {
                 method22();
                 break;
             }
 
-            case 23:{
+            case 23: {
                 method23();
                 break;
             }
@@ -1280,7 +1285,7 @@ public class MainActivity extends AppCompatActivity {
     private void recycleImageView() {
         //回收ImageView占用的图像内存
         if (mGoToRecycleImageView) {
-            Logger.d("onDestroy()> RecycleBitmap.recycleImageView(mImageView)");
+            logd("onDestroy()> RecycleBitmap.recycleImageView(mImageView)");
             RecycleBitmap.recycleImageView(mImageView);
             mImageView.setImageBitmap(null);
         }
@@ -1307,8 +1312,8 @@ public class MainActivity extends AppCompatActivity {
      * 递归释放所有子view涉及的图片，背景，DrawingCache，监听器等等资源，
      * 让Activity成为一个不占资源的空壳，泄露了也不会导致图片资源被持有。
      *
-     * @description Unbind the rootView
      * @param view:the root view of the layout
+     * @description Unbind the rootView
      * @author malin.myemail@gmail.com
      * @link http://stackoverflow.com/questions/9461364/exception-in-unbinddrawables
      * http://mp.weixin.qq.com/s?__biz=MzAwNDY1ODY2OQ==&mid=400656149&idx=1&sn=122b4f4965fafebf78ec0b4fce2ef62a&3rd=MzA3MDU4NTYzMw==&scene=6#rd
@@ -1406,7 +1411,7 @@ public class MainActivity extends AppCompatActivity {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    //Logger.d(mCounter + ":" + imagePathName);
+                                    //logd(mCounter + ":" + imagePathName);
 
                                     //5:将Bitmap绘制到画布上
                                     createSingleImageFromMultipleImages(bitmap, mCounter);
@@ -1561,5 +1566,9 @@ public class MainActivity extends AppCompatActivity {
 
                     }
                 });
+    }
+
+    private void logd(String s) {
+        Log.d(TAG, s);
     }
 }
